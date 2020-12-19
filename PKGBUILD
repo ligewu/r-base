@@ -6,7 +6,7 @@ pkgname="${_realname}"
 pkgver=4.0.9000
 pkgrel=1
 pkgdesc="The R Programming Language"
-arch=('any')
+arch=('x86_64')
 makedepends=("${MINGW_PACKAGE_PREFIX}-bzip2"
              "${MINGW_PACKAGE_PREFIX}-gcc"
              "${MINGW_PACKAGE_PREFIX}-gcc-fortran"
@@ -29,8 +29,8 @@ license=("GPL")
 url="https://www.r-project.org/"
 
 # Default source is R-devel (override via $rsource_url)
-source=(R-source.tar.gz::"${rsource_url:-https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz}"
-    https://curl.haxx.se/ca/cacert.pem
+source=(R-source.tar.gz::"${rsource_url:-https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base-prerelease/R-devel.tar.gz}"
+    curl-ca-bundle.pem
     MkRules.local.in
     shortcut.diff
     create-tcltk-bundle.sh)
@@ -65,12 +65,12 @@ prepare() {
   cd "${srcdir}/R-source"
 
   # Ship the CA bundle
-  cp "${srcdir}/cacert.pem" etc/curl-ca-bundle.crt
+  cp "${srcdir}/curl-ca-bundle.pem" etc/curl-ca-bundle.crt
 
   # Ship the TclTk runtime bundle
   msg2 "Creating the TclTk runtime bundle"
   mkdir -p Tcl/{bin,bin64,lib,lib64}
-  ${srcdir}/create-tcltk-bundle.sh  
+  ${srcdir}/create-tcltk-bundle.sh
 
   # Add your patches here
   patch -Np1 -i "${srcdir}/shortcut.diff"
@@ -87,18 +87,18 @@ build() {
   sed -e "s|@win@|32|" -e "s|@texindex@||" -e "s|@home32@||" "${srcdir}/MkRules.local.in" > MkRules.local
   #make 32-bit SHELL='sh -x'
   make 32-bit
-  
+
   # Build 64 bit + docs and installers
   msg2 "Building 64-bit distribution"
   cd "${srcdir}/R-source/src/gnuwin32"
-  TEXINDEX=$(cygpath -m $(which texindex))  
+  TEXINDEX=$(cygpath -m $(which texindex))
   sed -e "s|@win@|64|" -e "s|@texindex@|${TEXINDEX}|" -e "s|@home32@|${srcdir}/build32|" "${srcdir}/MkRules.local.in" > MkRules.local
   make distribution
 }
 
 check(){
   # Use cloud mirror for CRAN unit test
-  #export R_CRAN_WEB="https://cran.rstudio.com"
+  export R_CRAN_WEB="https://mirrors.tuna.tsinghua.edu.cn/CRAN/"
 
   # Run 64 bit checks in foreground
   cd "${srcdir}/R-source/src/gnuwin32"

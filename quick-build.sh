@@ -2,7 +2,7 @@
 # Minimal example of building R for Windows.
 # You must run this script inside the rtools40 shell.
 # This builds and checks a single architecture (no manuals or installer)
-# Used below: set this to 32 or 64 
+# Used below: set this to 32 or 64
 WIN=64
 
 # Run script safely and emit some verbose output
@@ -26,19 +26,19 @@ pacman -S --needed --noconfirm mingw-w64-{i686,x86_64}-{cairo,tk,curl}
 
 # Download R-devel and extract (tarball contains recursive symlinks)
 rm -Rf R-devel
-curl -OL https://cran.r-project.org/src/base-prerelease/R-devel.tar.gz
+curl -OL https://mirrors.tuna.tsinghua.edu.cn/CRAN/src/base-prerelease/R-devel.tar.gz
 MSYS="winsymlinks:lnk" tar -xf R-devel.tar.gz
 cd R-devel
 
 # Download a certificate bunle
-curl https://curl.haxx.se/ca/cacert.pem > etc/curl-ca-bundle.crt
-
+# curl https://curl.haxx.se/ca/cacert.pem > etc/curl-ca-bundle.crt
+cat ../curl-ca-bundle.pem > etc/curl-ca-bundle.crt
 # Create the TCL bundle required by tcltk package
 mkdir -p Tcl/{bin,bin64,lib,lib64}
 ${srcdir}/create-tcltk-bundle.sh
 
 # Add custom patches here:
-# patch -Np1 -i "${srcdir}/myfix.patch" 
+# patch -Np1 -i "${srcdir}/myfix.patch"
 
 # Build just the core pieces (no manuals or installer)
 cd "src/gnuwin32"
